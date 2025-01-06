@@ -31,5 +31,9 @@ All commands run in root of the project
 
 ```
 docker-compose build
+```
+```
 docker-compose up
 ```
+
+### API documentation
