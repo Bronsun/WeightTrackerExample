@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=postgres_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend/simple_weight_tracker
+      dockerfile: Dockerfile
+    container_name: weight_tracker_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/simple_weight_tracker:/app
+    depends_on:
+      - db
+    environment:
+      DB_NAME: postgres_db #it can be change to use from ENV
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: db
+      DB_PORT: '5432'
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: weight_tracker_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/usr/src/app  # for hot-reloading in dev
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_API_URL: "http://localhost:8000"
+
+volumes:
+  db_data:
