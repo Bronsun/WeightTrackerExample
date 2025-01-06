@@ -3,6 +3,11 @@ version: '3.8'
 services:
   db:
     image: postgres:15
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     container_name: postgres_db
     ports:
       - "5432:5432"
@@ -23,13 +28,30 @@ services:
     volumes:
       - ./backend/simple_weight_tracker:/app
     depends_on:
-      - db
+      db:
+        condition: service_healthy # This helps to prevent to fast startup. It is waiting until postgres boots up in the docker.
     environment:
-      DB_NAME: postgres_db #it can be change to use from ENV
+      DB_NAME: postgres_db
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_HOST: db
       DB_PORT: '5432'
+
+  test:
+    build:
+      context: ./backend/simple_weight_tracker
+      dockerfile: Dockerfile
+    container_name: weight_tests
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_NAME: postgres_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: db
+      DB_PORT: '5432'
+    command: python manage.py test
 
   frontend:
     build:
@@ -39,7 +61,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/usr/src/app  # for hot-reloading in dev
+      - ./frontend:/usr/src/app  
     depends_on:
       - backend
     environment:
