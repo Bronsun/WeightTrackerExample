@@ -29,13 +29,18 @@ services:
       - ./backend/simple_weight_tracker:/app
     depends_on:
       db:
-        condition: service_healthy # This helps to prevent to fast startup. It is waiting until postgres boots up in the docker.
+        condition: service_healthy # This helps to prevent too fast startup. It is waiting until postgres boots up in the docker.
     environment:
       DB_NAME: postgres_db
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_HOST: db
       DB_PORT: '5432'
+    command: >
+      sh -c "
+        python manage.py migrate --noinput &&
+        python manage.py runserver 0.0.0.0:8000
+      "
 
   test:
     build:

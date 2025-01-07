@@ -31,18 +31,18 @@ All commands run in root of the project
 
 Run whole project with tests:
 ```
-docker-compose build
+docker compose build
 ```
 ```
-docker-compose up
+docker compose up
 ```
 
 Run only tests:
 ```
-docker-compose build test
+docker compose build test
 ```
 ```
-docker-compose run --rm test
+docker compose run --rm test
 ```
 
 ### API documentation
