@@ -1,6 +1,10 @@
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
+  deleteReading,
   fetchReadings,
   MassReading,
 } from "../queries/readings";
@@ -12,9 +16,17 @@ import {
   TableCell,
   CircularProgress,
   Typography,
+  Button,
 } from "@mui/material";
 
-function ReadingListSimple(){
+interface ReadingListProps {
+  isKg: boolean;
+}
+
+function ReadingList({
+  isKg,
+}: ReadingListProps) {
+  const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery<
     MassReading[],
     Error
@@ -23,7 +35,24 @@ function ReadingListSimple(){
     queryFn: fetchReadings,
   });
 
-  if (isLoading) return <CircularProgress />;
+  const deleteMutation = useMutation({
+    mutationFn: (date: string) =>
+      deleteReading(date),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: ["readings"],
+      }),
+  });
+  const convertMass = (kg: number) => {
+    return isKg
+      ? `${kg.toFixed(1)} kg`
+      : `${(kg * 2.20462).toFixed(1)} lbs`;
+  };
+
+  if (isLoading)
+    return (
+      <CircularProgress style={{ margin: 20 }} />
+    );
   if (error)
     return (
       <Typography color="error">
@@ -31,39 +60,56 @@ function ReadingListSimple(){
       </Typography>
     );
 
-  if (!data || data.length === 0) {
-    return (
-      <Typography>No readings yet.</Typography>
-    );
-  }
+  const readings = data || [];
+  const sorted = [...readings].sort(
+    (a, b) =>
+      new Date(a.date).getTime() -
+      new Date(b.date).getTime()
+  );
 
   return (
     <>
-      <Typography variant="h6" gutterBottom>
-        Readings
-      </Typography>
-      <Table>
+      <Table style={{ marginTop: 20 }}>
         <TableHead>
           <TableRow>
             <TableCell>Date</TableCell>
-            <TableCell>Mass (kg)</TableCell>
+            <TableCell>Mass</TableCell>
+            <TableCell>Settings</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map((reading) => (
-            <TableRow key={reading.date}>
+          {sorted.map((item) => (
+            <TableRow key={item.date}>
+              <TableCell>{item.date}</TableCell>
               <TableCell>
-                {reading.date}
+                {convertMass(item.mass)}
               </TableCell>
-              <TableCell>
-                {reading.mass.toFixed(1)}
+              <TableCell align="right">
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() =>
+                    deleteMutation.mutate(
+                      item.date
+                    )
+                  }
+                >
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}
+          {sorted.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={3}>
+                No readings yet.
+              </TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
     </>
   );
-};
+}
 
-export default ReadingListSimple;
+export default ReadingList;
