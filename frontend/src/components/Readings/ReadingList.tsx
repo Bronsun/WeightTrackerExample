@@ -7,7 +7,7 @@ import {
   deleteReading,
   fetchReadings,
   MassReading,
-} from "../queries/readings";
+} from "../../queries/readings";
 import {
   Table,
   TableHead,
@@ -18,14 +18,13 @@ import {
   Typography,
   Button,
 } from "@mui/material";
+import dayjs from "dayjs";
 
 interface ReadingListProps {
   isKg: boolean;
 }
 
-function ReadingList({
-  isKg,
-}: ReadingListProps) {
+function ReadingList({ isKg }: ReadingListProps) {
   const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery<
     MassReading[],
@@ -33,6 +32,7 @@ function ReadingList({
   >({
     queryKey: ["readings"],
     queryFn: fetchReadings,
+    refetchInterval: 60000,
   });
 
   const deleteMutation = useMutation({
@@ -61,10 +61,8 @@ function ReadingList({
     );
 
   const readings = data || [];
-  const sorted = [...readings].sort(
-    (a, b) =>
-      new Date(a.date).getTime() -
-      new Date(b.date).getTime()
+  const sorted = [...readings].sort((a, b) =>
+    dayjs(a.date).diff(dayjs(b.date))
   );
 
   return (
@@ -74,7 +72,7 @@ function ReadingList({
           <TableRow>
             <TableCell>Date</TableCell>
             <TableCell>Mass</TableCell>
-            <TableCell>Settings</TableCell>
+            <TableCell></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -84,7 +82,7 @@ function ReadingList({
               <TableCell>
                 {convertMass(item.mass)}
               </TableCell>
-              <TableCell align="right">
+              <TableCell>
                 <Button
                   variant="outlined"
                   color="error"
