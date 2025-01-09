@@ -1,9 +1,25 @@
-export interface MassReading {
+export interface MassReading { //TODO move to models
   date: string;
   mass: number;
 }
 
 const URL = process.env.REACT_APP_API_URL;
+
+
+async function handleError(response: Response): Promise<void> { //TODO never
+  let errorMessage = response.statusText || 'Unknown error';
+  try {
+    const errorData = await response.json();
+    if (errorData.message) {
+      errorMessage = errorData.message;
+    } else {
+      errorMessage = JSON.stringify(errorData);
+    }
+  } catch (err) {
+    errorMessage = "Error parsing JSON"
+  }
+  throw new Error(errorMessage);
+}
 
 // GET /readings []
 export async function fetchReadings(): Promise<
@@ -13,7 +29,7 @@ export async function fetchReadings(): Promise<
     `${URL}/readings/`
   );
   if (!response.ok) {
-    throw new Error("Failed to fetch readings");
+    await handleError(response)
   }
   return response.json();
 }
@@ -33,9 +49,7 @@ export async function createReading(
     }
   );
   if (!response.ok) {
-    throw new Error(
-      "Failed to create/overwrite reading"
-    );
+    await handleError(response)
   }
   return response.json();
 }
@@ -56,7 +70,7 @@ export async function updateReading(
     }
   );
   if (!response.ok) {
-    throw new Error("Failed to update reading");
+    await handleError(response)
   }
   return response.json();
 }
@@ -72,6 +86,6 @@ export async function deleteReading(
     }
   );
   if (!response.ok) {
-    throw new Error("Failed to delete reading");
+    await handleError(response)
   }
 }

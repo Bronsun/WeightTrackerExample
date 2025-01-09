@@ -1,5 +1,3 @@
-// src/components/ConfirmationModal.tsx
-import React from "react";
 import {
   Modal,
   Box,
@@ -27,12 +25,11 @@ export default function ConfirmationModal({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    bgcolor: "background.paper",
+    bgcolor: "white",
     boxShadow: 24,
     p: 3,
     minWidth: 300,
   };
-
   return (
     <Modal open={open} onClose={onClose}>
       <Box sx={style}>

@@ -1,29 +1,37 @@
-import { useState } from "react";
-import ReadingList from "./components/ReadingList";
-import { MassReading } from "./queries/readings";
-import ReadingForm from "./components/ReadingsForm";
+import React, { useState } from "react";
 import {
   Container,
-  FormControlLabel,
+  Tabs,
+  Tab,
   Radio,
   RadioGroup,
+  FormControlLabel,
   Typography,
 } from "@mui/material";
+import ReadingList from "./components/Readings/ReadingList";
+import ReadingForm from "./components/Readings/ReadingsForm";
+import WeightScatterChart from "./components/Chart/WeightScatterChart";
+import TabPanel from "./components/Tab/TabPanel";
 
-function App() {
+export default function App() {
   const [unit, setUnit] = useState<"kg" | "lbs">(
     "kg"
   );
-  const [editingReading, setEditingReading] =
-    useState<MassReading | undefined>(undefined);
+  const isKg = unit === "kg";
+  const [selectedTab, setSelectedTab] =
+    useState(0);
+
+  const handleTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ) => {
+    setSelectedTab(newValue);
+  };
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <Typography variant="h1" fontSize={24}>
-        Weight Tracker Example
-      </Typography>
-      <Typography fontSize={16}>
-        Choose measure unit
+      <Typography variant="h4" gutterBottom>
+        Weight Tracker
       </Typography>
       <RadioGroup
         row
@@ -44,20 +52,33 @@ function App() {
           label="LBS"
         />
       </RadioGroup>
-
-      <ReadingForm
-        initialReading={editingReading}
-        isKg={unit === "kg"}
-        onSuccess={() => {
-          setEditingReading(undefined);
+      <ReadingForm isKg={isKg} />
+      <Tabs
+        value={selectedTab}
+        onChange={handleTabChange}
+        aria-label="sections"
+        style={{
+          backgroundColor: "#e6e6e6",
+          marginTop: 20,
         }}
-        onCancel={() =>
-          setEditingReading(undefined)
-        }
-      />
-      <ReadingList isKg={unit === "kg"} />
+      >
+        <Tab
+          label="List"
+          id="tab-0"
+          aria-controls="tabpanel-0"
+        />
+        <Tab
+          label="Chart"
+          id="tab-1"
+          aria-controls="tabpanel-1"
+        />
+      </Tabs>
+      <TabPanel value={selectedTab} index={0}>
+        <ReadingList isKg={isKg} />
+      </TabPanel>
+      <TabPanel value={selectedTab} index={1}>
+        <WeightScatterChart isKg={isKg} />
+      </TabPanel>
     </Container>
   );
 }
-
-export default App;
