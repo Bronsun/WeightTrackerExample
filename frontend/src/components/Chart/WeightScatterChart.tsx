@@ -42,57 +42,93 @@ export default function WeightScatterChart({
       </Typography>
     );
 
-    const chartData = (data || []).map((reading) => ({
+  const chartData = (data || []).map(
+    (reading) => ({
       x: dayjs(reading.date).valueOf(),
-      y: isKg ? reading.mass : reading.mass * 2.20462,
-    }));
-  
-    return (
-      <ResponsiveContainer width="100%" height={400}>
-        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-          <CartesianGrid />
-          <XAxis
-            dataKey="x"
-            type="number"
-            domain={["auto", "auto"]}
-            tickFormatter={(tick: number) => dayjs(tick).format("YYYY-MM-DD")}
-            label={{ value: "Date", position: "insideBottom", offset: -10 }}
-          />
-          <YAxis
-            dataKey="y"
-            type="number"
-            label={{
-              value: isKg ? "Mass (kg)" : "Mass (lbs)",
-              angle: -90,
-              position: "insideLeft",
-              offset: 10,
-            }}
-          />
-          <Tooltip
-            cursor={{ strokeDasharray: "3 3" }}
-            content={({ active, payload }) => {
-              if (active && payload && payload.length) {
-                const { x, y } = payload[0].payload;
-                return (
-                  <div
-                    style={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #ccc",
-                      padding: "5px",
-                    }}
-                  >
-                    <p>Date: {dayjs(x).format("YYYY-MM-DD")}</p>
-                    <p>
-                      Mass: {y.toFixed(1)} {isKg ? "kg" : "lbs"}
-                    </p>
-                  </div>
-                );
-              }
-              return null;
-            }}
-          />
-          <Scatter name="Weight" data={chartData} fill="#8884d8" />
-        </ScatterChart>
-      </ResponsiveContainer>
-    );
-  }
+      y: isKg
+        ? reading.mass
+        : reading.mass * 2.20462,
+    })
+  );
+
+  return (
+    <ResponsiveContainer
+      width="100%"
+      height={500}
+    >
+      <ScatterChart
+        margin={{
+          top: 20,
+          right: 20,
+          bottom: 20,
+          left: 20,
+        }}
+      >
+        <CartesianGrid />
+        <XAxis
+          dataKey="x"
+          type="number"
+          domain={["auto", "auto"]}
+          tickFormatter={(tick: number) =>
+            dayjs(tick).format("YYYY-MM-DD")
+          }
+          label={{
+            value: "Date",
+            position: "insideBottom",
+            offset: -10,
+          }}
+        />
+        <YAxis
+          dataKey="y"
+          type="number"
+          label={{
+            value: isKg
+              ? "Mass (kg)"
+              : "Mass (lbs)",
+            angle: -90,
+            position: "insideLeft",
+            offset: 10,
+          }}
+        />
+        <Tooltip
+          cursor={{ strokeDasharray: "3 3" }}
+          content={({ active, payload }) => {
+            if (
+              active &&
+              payload &&
+              payload.length
+            ) {
+              const { x, y } = payload[0].payload;
+              return (
+                <div
+                  style={{
+                    backgroundColor: "#fff",
+                    border: "1px solid #ccc",
+                    padding: "5px",
+                  }}
+                >
+                  <p>
+                    Date:{" "}
+                    {dayjs(x).format(
+                      "YYYY-MM-DD"
+                    )}
+                  </p>
+                  <p>
+                    Mass: {y.toFixed(1)}{" "}
+                    {isKg ? "kg" : "lbs"}
+                  </p>
+                </div>
+              );
+            }
+            return null;
+          }}
+        />
+        <Scatter
+          name="Weight"
+          data={chartData}
+          fill="#8884d8"
+        />
+      </ScatterChart>
+    </ResponsiveContainer>
+  );
+}
