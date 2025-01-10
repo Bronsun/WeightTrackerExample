@@ -20,11 +20,11 @@ import {
 } from "@mui/material";
 import dayjs from "dayjs";
 
-interface ReadingListProps {
+interface ReadingsListProps {
   isKg: boolean;
 }
 
-function ReadingList({ isKg }: ReadingListProps) {
+export default function ReadingsList({ isKg }: ReadingsListProps) {
   const queryClient = useQueryClient();
   const { data, isLoading, error } = useQuery<
     MassReading[],
@@ -109,5 +109,3 @@ function ReadingList({ isKg }: ReadingListProps) {
     </>
   );
 }
-
-export default ReadingList;

@@ -23,13 +23,13 @@ import {
 } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
-interface ReadingFormProps {
+interface ReadingsFormProps {
   isKg: boolean;
 }
 
-export default function ReadingForm({
+export default function ReadingsForm({
   isKg,
-}: ReadingFormProps) {
+}: ReadingsFormProps) {
   const [date, setDate] = useState<Dayjs>(
     dayjs()
   );
